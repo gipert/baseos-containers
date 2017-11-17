@@ -23,7 +23,7 @@ From: centos:7
         libzip-devel mesa-libGLU-devel \
         libjpeg-devel libpng-devel
     yum clean all
-    ln -s /usr/bin/cmake3 /usr/bin/cmake
+    ln -f -s /usr/bin/cmake3 /usr/bin/cmake
 
 %runscript
     if [ $# -eq 0 ]; then
