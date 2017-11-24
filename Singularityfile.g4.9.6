@@ -21,7 +21,9 @@ From: centos:7
         expat-devel xerces-c-devel fftw-devel \
         libXmu-devel libXi-devel libX11-devel libXext-devel libXft-devel libXpm-devel \
         libzip-devel mesa-libGLU-devel \
-        libjpeg-devel libpng-devel
+        libjpeg-devel libpng-devel \
+        motif-devel qt-devel mesa-dri-drivers \
+        ImageMagick xorg-x11-fonts-Type1
     yum clean all
 
 %runscript
@@ -121,6 +123,8 @@ From: centos:7
         -DGEANT4_USE_OPENGL_X11=ON \
         -DGEANT4_USE_RAYTRACER_X11=ON \
         -DGEANT4_INSTALL_DATA=ON \
+        -DGEANT4_USE_XM=ON \
+        -DGEANT4_USE_QT=ON \
         --fail-on-missing \
         /scif/src/geant4-src
     cmake --build . -- -j"$(nproc)" && make install
