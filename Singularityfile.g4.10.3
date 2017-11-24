@@ -68,7 +68,7 @@ From: centos:7
     export PYTHONPATH="$ROOTSYS/lib:$PYTHONPATH"
 
 %apprun root
-    root -l
+    root -l $@
 
 %appinstall root
     wget -O- https://root.cern.ch/download/root_v6.06.08.Linux-centos7-x86_64-gcc4.8.tar.gz | tar --strip-components 1 -xz -C $SINGULARITY_APPROOT
