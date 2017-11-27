@@ -5,16 +5,18 @@ LABEL maintainer="luigi.pertoldi@pd.infn.it"
 USER root
 WORKDIR /root
 
-RUN yum install -y epel-release deltarpm && \
-    yum groupinstall -y "Development Tools" && \
-    yum install -y htop zsh vim wget cmake \
-                   expat-devel xerces-c-devel fftw-devel \
-                   libXmu-devel libXi-devel libX11-devel \
-                   libXext-devel libXft-devel libXpm-devel \
-                   libzip-devel mesa-libGLU-devel \
-                   libjpeg-devel libpng-devel \
-                   motif-devel qt-devel mesa-dri-drivers \
-                   ImageMagick xorg-x11-fonts-Type1
+RUN yum -q -y update && \
+    yum install -q -y epel-release deltarpm && \
+    yum groupinstall -q -y "Development Tools" && \
+    yum install -q -y htop zsh vim wget cmake \
+                      expat-devel xerces-c-devel fftw-devel \
+                      libXmu-devel libXi-devel libX11-devel \
+                      libXext-devel libXft-devel libXpm-devel \
+                      libzip-devel mesa-libGLU-devel \
+                      libjpeg-devel libpng-devel \
+                      motif-devel qt-devel mesa-dri-drivers \
+                      ImageMagick xorg-x11-fonts-Type1 && \
+    yum -q clean all
 
 RUN dbus-uuidgen > /etc/machine-id
 
@@ -28,7 +30,7 @@ ENV PATH="/opt/root/bin:$PATH" \
     ROOTSYS="/opt/root"
 
 RUN mkdir -p /opt/root && \
-    wget -O- https://root.cern.ch/download/root_v6.06.08.Linux-centos7-x86_64-gcc4.8.tar.gz \
+    wget -q -O- https://root.cern.ch/download/root_v6.06.08.Linux-centos7-x86_64-gcc4.8.tar.gz \
     | tar --strip-components 1 -xz -C "/opt/root"
 
 # compile and install CLHEP
@@ -39,14 +41,14 @@ ENV CLHEP_BASE_DIR="/opt/clhep" \
     CLHEP_LIB_DIR="/opt/clhep/lib"
 
 RUN mkdir -p src && \
-    wget -O- http://proj-clhep.web.cern.ch/proj-clhep/DISTRIBUTION/tarFiles/clhep-2.1.3.1.tgz \
+    wget -q -O- http://proj-clhep.web.cern.ch/proj-clhep/DISTRIBUTION/tarFiles/clhep-2.1.3.1.tgz \
     | tar --strip-components 2 -xz -C "src" && \
     mkdir -p build && \
     cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX="/opt/clhep" --fail-on-missing ../src && \
+    cmake -DCMAKE_INSTALL_PREFIX="/opt/clhep" --fail-on-missing ../src > /dev/null && \
     cmake --build . -- -j"$(nproc)" && \
     mkdir -p /opt/clhep && \
-    make install && \
+    make install > /dev/null && \
     cd .. && rm -rf src/* build/*
 
 # compile and install geant4
@@ -64,7 +66,7 @@ ENV PATH="/opt/geant4/bin:/opt/clhep/bin:$PATH" \
     G4SAIDXSDATA="/opt/geant4/share/Geant4-9.6.4/data/G4SAIDDATA1.1"
 
 RUN mkdir -p /opt/geant4 && \
-    wget -O- https://geant4.web.cern.ch/geant4/support/source/geant4.9.6.p04.tar.gz \
+    wget -q -O- https://geant4.web.cern.ch/geant4/support/source/geant4.9.6.p04.tar.gz \
     | tar --strip-components 1 -xz -C "src" && \
     cd build && \
     cmake -DCMAKE_INSTALL_PREFIX="/opt/geant4" \
@@ -77,9 +79,9 @@ RUN mkdir -p /opt/geant4 && \
           -DGEANT4_USE_XM=ON \
           -DGEANT4_USE_QT=ON \
           --fail-on-missing \
-          ../src && \
+          ../src > /dev/null && \
     cmake --build . -- -j"$(nproc)" && \
-    make install && \
+    make install > /dev/null && \
     cd .. && rm -rf src build
 
 CMD /bin/zsh
