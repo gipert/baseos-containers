@@ -32,17 +32,28 @@ RUN mkdir -p /opt/root && \
     wget -q -O- https://root.cern.ch/download/root_v6.06.08.Linux-centos7-x86_64-gcc4.8.tar.gz \
     | tar --strip-components 1 -xz -C "/opt/root"
 
-# install prebuild CLHEP in /opt/clhep
+# compile and install CLHEP
+# it will be installed in /opt/clhep
 
 ENV CLHEP_BASE_DIR="/opt/clhep" \
     CLHEP_INCLUDE_DIR="/opt/clhep/include" \
     CLHEP_LIB_DIR="/opt/clhep/lib"
 
 RUN mkdir -p src && \
-    wget -q -O- https://baltig.infn.it/gerda/baseos-binaries/raw/master/clhep-2.3.4.4-centos7.tar.gz \
-    | tar --strip-components 1 -xz -C "/opt/clhep"
+    wget -q -O- http://proj-clhep.web.cern.ch/proj-clhep/DISTRIBUTION/tarFiles/clhep-2.3.4.4.tgz \
+    | tar --strip-components 2 -xz -C "src" && \
+    mkdir -p build && \
+    cd build && \
+    cmake -DCMAKE_INSTALL_PREFIX="/opt/clhep" \
+          -DCMAKE_CXX_FLAGS=-std=c++11 \
+          --fail-on-missing ../src > /dev/null && \
+    cmake --build . -- -j"$(nproc)" && \
+    mkdir -p /opt/clhep && \
+    make install > /dev/null && \
+    cd .. && rm -rf src/* build/*
 
-# install prebuild geant4 in /opt/geant4
+# compile and install geant4
+# it will be installed in /opt/geant4
 
 ENV PATH="/opt/geant4/bin:/opt/clhep/bin:$PATH" \
     LD_LIBRARY_PATH="/opt/geant4/lib64:/opt/clhep/lib:$LD_LIBRARY_PATH" \
@@ -58,7 +69,23 @@ ENV PATH="/opt/geant4/bin:/opt/clhep/bin:$PATH" \
     G4ABLADATA="/opt/geant4/share/Geant4-10.3.3/data/G4ABLA3.0"
 
 RUN mkdir -p /opt/geant4 && \
-    wget -q -O- https://baltig.infn.it/gerda/baseos-binaries/raw/master/geant4-10.3.p03-centos7.tar.gz \
-    | tar --strip-components 1 -xz -C "src"
+    wget -q -O- http://cern.ch/geant4/support/source/geant4.10.03.p03.tar.gz \
+    | tar --strip-components 1 -xz -C "src" && \
+    cd build && \
+    cmake -DCMAKE_INSTALL_PREFIX="/opt/geant4" \
+          -DGEANT4_BUILD_CXXSTD=c++11 \
+          -DGEANT4_USE_SYSTEM_CLHEP=ON \
+          -DCLHEP_ROOT_DIR=/opt/clhep \
+          -DGEANT4_USE_GDML=ON \
+          -DGEANT4_USE_OPENGL_X11=ON \
+          -DGEANT4_USE_RAYTRACER_X11=ON \
+          -DGEANT4_USE_XM=ON \
+          -DGEANT4_USE_QT=ON \
+          -DGEANT4_INSTALL_DATA=ON \
+          --fail-on-missing \
+          ../src > /dev/null && \
+    cmake --build . -- -j"$(nproc)" && \
+    make install > /dev/null && \
+    cd .. && rm -rf src build
 
 CMD /bin/zsh
