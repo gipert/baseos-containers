@@ -39,7 +39,7 @@ ENV CLHEP_BASE_DIR="/opt/clhep" \
     CLHEP_INCLUDE_DIR="/opt/clhep/include" \
     CLHEP_LIB_DIR="/opt/clhep/lib"
 
-RUN mkdir -p src && \
+RUN mkdir -p /opt/clhep && \
     wget -q -O- https://baltig.infn.it/gerda/baseos-binaries/raw/master/clhep-2.1.3.1-centos7.tar.gz \
     | tar --strip-components 1 -xz -C "/opt/clhep"
 

@@ -38,7 +38,7 @@ ENV CLHEP_BASE_DIR="/opt/clhep" \
     CLHEP_INCLUDE_DIR="/opt/clhep/include" \
     CLHEP_LIB_DIR="/opt/clhep/lib"
 
-RUN mkdir -p src && \
+RUN mkdir -p /opt/clhep && \
     wget -q -O- https://baltig.infn.it/gerda/baseos-binaries/raw/master/clhep-2.3.4.4-centos7.tar.gz \
     | tar --strip-components 1 -xz -C "/opt/clhep"
 
@@ -59,6 +59,6 @@ ENV PATH="/opt/geant4/bin:/opt/clhep/bin:$PATH" \
 
 RUN mkdir -p /opt/geant4 && \
     wget -q -O- https://baltig.infn.it/gerda/baseos-binaries/raw/master/geant4-10.3.p03-centos7.tar.gz \
-    | tar --strip-components 1 -xz -C "src"
+    | tar --strip-components 1 -xz -C "/opt/geant4"
 
 CMD /bin/zsh
